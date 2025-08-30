@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Push Docker') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "@Santhu97", usernameVariable:'DOCKER_USER', passwordVariable:'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable:'DOCKER_USER', passwordVariable:'DOCKER_PASS')]) {
                     bat """
                     echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                     docker push %REGISTRY%:latest
