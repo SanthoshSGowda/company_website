@@ -2,8 +2,7 @@ pipeline {
     agent any
     environment {
         REGISTRY = "santhu100297/flask-company-site"
-        REGISTRY_CREDENTIALS = "@Santhu97"
-        KUBECONFIG_CREDENTIALS = "kubeconfig"
+        KUBECONFIG_CREDENTIALS = "@Santhu97"
     }
     stages {
         stage('Checkout') {
@@ -16,7 +15,7 @@ pipeline {
         }
         stage('Push Docker') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "%REGISTRY_CREDENTIALS%", usernameVariable:'DOCKER_USER', passwordVariable:'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable:'DOCKER_USER', passwordVariable:'DOCKER_PASS')]) {
                     bat """
                     echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                     docker push %REGISTRY%:latest
@@ -26,7 +25,7 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "%KUBECONFIG_CREDENTIALS%", variable:'KUBECONFIG_FILE')]) {
+                withCredentials([file(credentialsId: "kubeconfig", variable:'KUBECONFIG_FILE')]) {
                     bat """
                     set KUBECONFIG=%KUBECONFIG_FILE%
                     kubectl set image deployment/flask-company-site flask-company-site=%REGISTRY%:latest --record
