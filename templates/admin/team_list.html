@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Admin — Team{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Team</h3>
+    <a class="btn btn-primary" href="/admin/team/new">Add Member</a>
+  </div>
+  <table class="table table-striped table-hover">
+    <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Photo</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r['id'] }}</td>
+        <td>{{ r['name'] }}</td>
+        <td>{{ r['role'] }}</td>
+        <td><img src="{{ r['photo_url'] or 'https://picsum.photos/80' }}" width="80"></td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="/admin/team/{{ r['id'] }}/edit">Edit</a>
+          <form class="d-inline" method="POST" action="/admin/team/{{ r['id'] }}/delete">
+            <button class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

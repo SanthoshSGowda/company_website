@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}About — Acme Corp{% endblock %}
+{% block content %}
+<section class="py-5 gradient-radial text-white">
+  <div class="container">
+    <h1 class="fw-bold">About Us</h1>
+    <p class="lead">We are a boutique tech studio focused on product velocity and quality.</p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      {% for t in team %}
+      <div class="col-md-3">
+        <div class="card shadow border-0 h-100 text-center lift">
+          <img src="{{ t['photo_url'] or 'https://picsum.photos/400/300' }}" class="card-img-top" alt="{{ t['name'] }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ t['name'] }}</h5>
+            <p class="card-text text-muted">{{ t['role'] }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

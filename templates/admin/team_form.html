@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Admin — Team Form{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:720px">
+  <h3 class="mb-3">{{ 'Edit' if item else 'Add' }} Team Member</h3>
+  <form method="POST" class="card p-4 shadow border-0">
+    <input class="form-control mb-2" name="name" placeholder="Name" value="{{ item['name'] if item else '' }}" required>
+    <input class="form-control mb-2" name="role" placeholder="Role" value="{{ item['role'] if item else '' }}" required>
+    <input class="form-control mb-3" name="photo_url" placeholder="Photo URL" value="{{ item['photo_url'] if item else '' }}">
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary">Save</button>
+      <a class="btn btn-secondary" href="/admin/team">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

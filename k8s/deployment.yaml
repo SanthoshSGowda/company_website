@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-company-site
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-company-site
+  template:
+    metadata:
+      labels:
+        app: flask-company-site
+    spec:
+      containers:
+      - name: flask-company-site
+        image: your-dockerhub-username/flask-company-site:latest
+        ports:
+        - containerPort: 5000

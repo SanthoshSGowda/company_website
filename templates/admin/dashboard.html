@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Admin — Dashboard{% endblock %}
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h2 class="mb-4">Dashboard</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card p-4 shadow border-0 bg-soft">
+          <h5>Services</h5>
+          <p class="display-6">{{ counts.services }}</p>
+          <a class="btn btn-outline-primary" href="/admin/services">Manage</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-4 shadow border-0 bg-soft">
+          <h5>Team</h5>
+          <p class="display-6">{{ counts.team }}</p>
+          <a class="btn btn-outline-primary" href="/admin/team">Manage</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-4 shadow border-0 bg-soft">
+          <h5>Messages</h5>
+          <p class="display-6">{{ counts.messages }}</p>
+          <a class="btn btn-outline-primary" href="/admin/messages">View</a>
+        </div>
+      </div>
+    </div>
+    <a class="btn btn-secondary mt-4" href="/admin/logout">Logout</a>
+  </div>
+</section>
+{% endblock %}

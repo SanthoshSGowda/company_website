@@ -1,0 +1,14 @@
+:root{
+  --primary:#6f2dbd;
+  --secondary:#ff4d6d;
+  --accent:#ffbf00;
+  --soft:#f7f2ff;
+}
+.bg-gradient-primary{background: linear-gradient(90deg, var(--primary), #3a0ca3);}
+.bg-gradient-secondary{background: linear-gradient(90deg, var(--secondary), #ff8fa3);}
+.text-gradient{background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+.hero{min-height: 60vh; background: radial-gradient(1200px 600px at top left, #e0d4ff, transparent), linear-gradient(120deg, #6f2dbd 0%, #b5179e 50%, #ff4d6d 100%);}
+.bg-soft{background: var(--soft);}
+.accent{color: var(--accent);}
+.card.lift{transition: transform .2s, box-shadow .2s;}
+.card.lift:hover{transform: translateY(-4px); box-shadow:0 1rem 3rem rgba(0,0,0,.15);}

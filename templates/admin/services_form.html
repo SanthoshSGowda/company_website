@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Admin — Service Form{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:720px">
+  <h3 class="mb-3">{{ 'Edit' if item else 'Add' }} Service</h3>
+  <form method="POST" class="card p-4 shadow border-0">
+    <input class="form-control mb-2" name="title" placeholder="Title" value="{{ item['title'] if item else '' }}" required>
+    <textarea class="form-control mb-2" name="description" rows="4" placeholder="Description" required>{{ item['description'] if item else '' }}</textarea>
+    <input class="form-control mb-3" name="icon" placeholder="Bootstrap Icon class e.g., bi-lightning-fill" value="{{ item['icon'] if item else '' }}">
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary">Save</button>
+      <a class="btn btn-secondary" href="/admin/services">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
