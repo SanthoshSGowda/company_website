@@ -4,73 +4,54 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'   // Jenkins Docker Hub credentials ID
         DOCKERHUB_USERNAME = 'santhu100297'
+        IMAGE_NAME = "${DOCKERHUB_USERNAME}/flask-company-site"
         KUBE_CREDENTIALS = 'kubeconfig'             // Jenkins Kubeconfig credentials ID
-        DOCKER_IMAGE = "santhu100297/flask-company-site:latest"
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/SanthoshSGowda/company_website.git'
+                git url: 'https://github.com/SanthoshSGowda/company_website.git', branch: 'main'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat "docker build -t %DOCKER_IMAGE% ."
+                    docker.build("${IMAGE_NAME}:latest")
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat """
-                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-                        docker push %DOCKER_IMAGE%
-                    """
+                withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        bat "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        bat "docker push ${IMAGE_NAME}:latest"
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    writeFile file: 'deployment.yaml', text: """
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: flask-company-site
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: flask-company-site
-  template:
-    metadata:
-      labels:
-        app: flask-company-site
-    spec:
-      containers:
-      - name: flask-company-site
-        image: ${DOCKER_IMAGE}
-        ports:
-        - containerPort: 5000
-        imagePullPolicy: Always
-"""
-                    bat 'kubectl apply -f deployment.yaml'
+                withCredentials([file(credentialsId: "${KUBE_CREDENTIALS}", variable: 'KUBECONFIG')]) {
+                    bat 'kubectl apply -f k8s/deployment.yaml'
+                    bat "kubectl rollout status deployment flask-company-site"
                 }
             }
         }
+
     }
 
     post {
-        failure {
-            echo '❌ Deployment Failed!'
-        }
         success {
             echo '✅ Deployment Successful!'
+        }
+        failure {
+            echo '❌ Deployment Failed!'
         }
     }
 }
