@@ -15,5 +15,6 @@ spec:
       containers:
       - name: flask-company-site
         image: santhu100297/flask-company-site:latest
+        imagePullPolicy: Always  # <--- forces pull of latest image
         ports:
         - containerPort: 5000
