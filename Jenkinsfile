@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: flask-company-site
-        image: %DOCKER_IMAGE%
+        image: ${DOCKER_IMAGE}
         ports:
         - containerPort: 5000
         imagePullPolicy: Always
