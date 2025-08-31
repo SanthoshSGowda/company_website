@@ -1,38 +1,57 @@
 pipeline {
     agent any
+
     environment {
-        REGISTRY = "santhu100297/flask-company-site"
-        KUBECONFIG_CREDENTIALS = "@Santhu97"
+        DOCKERHUB_CREDENTIALS = 'dockerhub-creds'   // Jenkins Docker Hub credentials ID
+        DOCKERHUB_USERNAME = 'santhu100297'
+        IMAGE_NAME = "${DOCKERHUB_USERNAME}/flask-company-site"
+        KUBE_CREDENTIALS = '@Santhu97'             // Jenkins Kubeconfig credentials ID
     }
+
     stages {
-        stage('Checkout') {
-            steps { checkout scm }
-        }
-        stage('Build Docker') {
+
+        stage('Checkout Code') {
             steps {
-                bat 'docker build -t %REGISTRY%:latest .'
+                git url: 'https://github.com/SanthoshSGowda/company_website.git', branch: 'main'
             }
         }
-        stage('Push Docker') {
+
+        stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable:'DOCKER_USER', passwordVariable:'DOCKER_PASS')]) {
-                    bat """
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                    docker push %REGISTRY%:latest
-                    """
+                script {
+                    docker.build("${IMAGE_NAME}:latest")
                 }
             }
         }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        bat "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        bat "docker push ${IMAGE_NAME}:latest"
+                    }
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "kubeconfig", variable:'KUBECONFIG_FILE')]) {
-                    bat """
-                    set KUBECONFIG=%KUBECONFIG_FILE%
-                    kubectl set image deployment/flask-company-site flask-company-site=%REGISTRY%:latest --record
-                    kubectl rollout status deployment/flask-company-site
-                    """
+                withCredentials([file(credentialsId: "${KUBE_CREDENTIALS}", variable: 'KUBECONFIG')]) {
+                    bat "kubectl apply -f deployment.yaml"
+                    bat "kubectl rollout status deployment flask-company-site"
                 }
             }
+        }
+
+    }
+
+    post {
+        success {
+            echo '✅ Deployment Successful!'
+        }
+        failure {
+            echo '❌ Deployment Failed!'
         }
     }
 }
