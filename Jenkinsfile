@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     // Use Git commit hash as unique tag
-                    def commitHash = bat(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    def commitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     env.IMAGE_TAG = "${commitHash}"
                     
                     bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
