@@ -2,68 +2,75 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  // Jenkins Docker Hub credentials ID
+        DOCKERHUB_CREDENTIALS = 'dockerhub-creds'   // Jenkins Docker Hub credentials ID
         DOCKERHUB_USERNAME = 'santhu100297'
-        KUBECONFIG_CREDENTIALS = 'kubeconfig'        // Jenkins Kubernetes credentials ID
-        IMAGE_NAME = 'santhu100297/flask-company-site'
+        KUBE_CREDENTIALS = 'kubeconfig'             // Jenkins Kubeconfig credentials ID
+        DOCKER_IMAGE = "santhu100297/flask-company-site:latest"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/SanthoshSGowda/company_website.git'
+                git branch: 'main', url: 'https://github.com/SanthoshSGowda/company_website.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    def commitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    env.IMAGE_TAG = "${commitHash}"
-                    
-                    bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    bat "docker build -t %DOCKER_IMAGE% ."
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat """
                         docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push %DOCKER_IMAGE%
                     """
                 }
             }
         }
 
-        stage('Update Kubernetes Deployment') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG')]) {
-                    script {
-                        try {
-                            bat """
-                                kubectl set image deployment/flask-company-site flask-company-site=${IMAGE_NAME}:${IMAGE_TAG}
-                                kubectl rollout status deployment/flask-company-site --timeout=120s
-                            """
-                        } catch (err) {
-                            echo "⚠ Deployment failed, rolling back to previous version..."
-                            bat "kubectl rollout undo deployment/flask-company-site"
-                            error("Deployment failed and rollback executed.")
-                        }
-                    }
+                script {
+                    writeFile file: 'deployment.yaml', text: """
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-company-site
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-company-site
+  template:
+    metadata:
+      labels:
+        app: flask-company-site
+    spec:
+      containers:
+      - name: flask-company-site
+        image: %DOCKER_IMAGE%
+        ports:
+        - containerPort: 5000
+        imagePullPolicy: Always
+"""
+                    bat 'kubectl apply -f deployment.yaml'
                 }
             }
         }
     }
 
     post {
-        success {
-            echo "✅ Deployment Successful! Image: ${IMAGE_NAME}:${IMAGE_TAG}"
-        }
         failure {
-            echo "❌ Deployment Failed!"
+            echo '❌ Deployment Failed!'
+        }
+        success {
+            echo '✅ Deployment Successful!'
         }
     }
 }
