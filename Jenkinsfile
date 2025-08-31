@@ -38,8 +38,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: "${KUBE_CREDENTIALS}", variable: 'KUBECONFIG')]) {
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl rollout status deployment flask-company-site"
+                    bat "kubectl apply -f deployment.yaml"
+                    bat "kubectl rollout status deployment flask-company-site"
                 }
             }
         }
