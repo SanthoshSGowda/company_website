@@ -66,8 +66,8 @@ def init_db():
     cur.execute("SELECT COUNT(*) FROM team")
     if cur.fetchone()[0] == 0:
         demo_team = [
-            ("Aarav Mehta", "CEO", "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400"),
-            ("Isha Sharma", "CTO", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400"),
+            ("Aarav Mehta", "santhu", "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400"),
+            ("Isha Sharma", "santhu", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400"),
             ("Rahul Verma", "DevOps Engineer", "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=400"),
         ]
         cur.executemany("INSERT INTO team (name, role, photo_url) VALUES (?, ?, ?)", demo_team)
