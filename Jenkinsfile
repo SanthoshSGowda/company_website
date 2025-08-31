@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'   // Jenkins Docker Hub credentials ID
         DOCKERHUB_USERNAME = 'santhu100297'
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/flask-company-site"
-        KUBE_CREDENTIALS = '@Santhu97'             // Jenkins Kubeconfig credentials ID
+        KUBE_CREDENTIALS = 'kubeconfig'             // Jenkins Kubeconfig credentials ID
     }
 
     stages {
